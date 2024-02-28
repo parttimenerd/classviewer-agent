@@ -99,7 +99,7 @@ public class Main {
         for (Class klass : getClasses(pattern)) {
             if (inst.isModifiableClass(klass)) {
                 sb.append("<li>")
-                        .append("<a href='/decompile/class/")
+                        .append("<a href='/decompile/")
                         .append(klass.getName()).append("'>")
                         .append(klass.getName()).append("</a>")
                         .append("</li>");
