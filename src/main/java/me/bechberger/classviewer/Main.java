@@ -159,11 +159,12 @@ public class Main {
                 Files.write(classPath, getBytecode(c));
                 classPaths.add(classPath);
             }
-            String[] args = new String[classPaths.size() + 1];
+            String[] args = new String[classPaths.size() + 2];
+            args[0] = "-jrt=1";
             for (int i = 0; i < classPaths.size(); i++) {
-                args[i] = classPaths.get(i).toString();
+                args[i + 1] = classPaths.get(i).toString();
             }
-            args[classes.size()] = tmpDir.toString();
+            args[classes.size() + 1] = tmpDir.toString();
             ConsoleDecompiler.main(args);
             for (Class c : classes) {
                 var path = tmpDir.resolve(c.getSimpleName() + ".java");
