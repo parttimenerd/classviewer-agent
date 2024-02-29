@@ -87,7 +87,8 @@ public class Main {
     private static List<Class> getClasses(String pattern) {
         String regexp = pattern.replace(".", "\\.").replace("$", "\\$").replace("*", ".*");
         var p = Pattern.compile(regexp).asMatchPredicate();
-        return Arrays.stream(inst.getAllLoadedClasses()).filter(c -> p.test(c.getName())).toList();
+        return Arrays.stream(inst.getAllLoadedClasses()).sorted(Comparator.comparing(Class::getName))
+                .filter(c -> p.test(c.getName())).toList();
     }
 
     private static void list(Context ctx, @Nullable String match) {
@@ -128,6 +129,8 @@ public class Main {
                 <body>
                 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
                 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/components/prism-java.min.js"></script>
+                <em>Decompiled bytecode using <a href="https://vineflower.org/">vineflower</a>, obtained
+                when ever this page is loaded.</em>
                 """);
         decompileClasses(classes.stream().filter(c -> inst.isModifiableClass(c)).toList()).forEach((c, s) -> {
             sb.append("<h1>").append(c.getName()).append("</h1>");
