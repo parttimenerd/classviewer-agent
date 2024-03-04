@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -142,7 +143,30 @@ public class Main {
         ctx.result(sb.toString());
     }
 
-    private static Map<Class, String> decompileClasses(List<Class> classes) {
+    static Map<Class, String> decompileClasses(List<Class> classes) {
+        Map<String, List<Class>> classesPerSimpleName = classes.stream().collect(Collectors.groupingBy(Class::getSimpleName));
+        int maxIndex = classesPerSimpleName.values().stream().mapToInt(List::size).max().orElse(0);
+        Set<String> toProcess = new HashSet<>(classesPerSimpleName.keySet());
+        Map<Class, String> result = new HashMap<>();
+        for (int i = 0; i < maxIndex; i++) {
+            Map<Class<?>, byte[]> bytecodePerClassForSimpleName = new HashMap<>();
+            Set<String> removeFromProcess = new HashSet<>();
+            for (String className : toProcess) {
+                var classesForSimpleName = classesPerSimpleName.get(className);
+                if (i < classesForSimpleName.size()) {
+                    bytecodePerClassForSimpleName.put(classesForSimpleName.get(i), getBytecode(classesForSimpleName.get(i)));
+                }
+                if (i >= classesForSimpleName.size() - 1) {
+                    removeFromProcess.add(className);
+                }
+                result.putAll(decompileClassesWithoutClassNameDuplicates(classesForSimpleName));
+            }
+            toProcess.removeAll(removeFromProcess);
+        }
+        return result;
+    }
+
+    private static Map<Class, String> decompileClassesWithoutClassNameDuplicates(List<Class> classes) {
         var oldOut = System.out;
         try {
             System.setOut(new java.io.PrintStream(new java.io.OutputStream() {
